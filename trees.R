@@ -23,8 +23,7 @@ best_split = function(y, x, minsize = 30, minentropy = .1) {
   }
   
   entropies = sapply(features, expected_entropy)
-  gains = prior - entropies
-  features[which.max(gains)]
+  features[which.min(entropies)]
 }
 
 build = function(y, x, ids, parentval = NULL) {
@@ -64,8 +63,6 @@ decision_tree = function(data, target) {
   x = data[,setdiff(names(data), target)]
   build(y, x, ids = 1:length(y))
 }
-
-
 
 fake_it = function(n = 1000) {
   data.frame(
