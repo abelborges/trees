@@ -4,7 +4,7 @@ entropy = function(p, k = length(p)) {
   -sum(p * log(p, k))
 }
 
-expected_entropy = source('~/repos/trees/expected_entropy.R')$value
+expected_entropy = source('expected_entropy.R')$value
 
 best_split = function(y, x, k, minsize = 30, minentropy = .1) {
   n = length(y)
