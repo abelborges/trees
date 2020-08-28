@@ -1,21 +1,26 @@
 library(data.tree)
 library(DiagrammeR)
 
-function(tree) {
+function(tree, splitnode = 'split') {
   nodes = as.Node(tree)
   
   nodes$Do(function(node) {
-    label = if (node$name == 'then') ({
-      n = node$parent
-      if (!is.null(n$cut)) paste(n$feature, '>', round(n$cut, 2))
-      else n$feature
+    label = if (node$name == splitnode) ({
+      p = node$parent
+      if (!is.null(p$cut)) paste(p$feature, '>', round(p$cut, 2))
+      else p$feature
     }) else as.character(node$parentval)
+    
+    tooltip = if (node$name == splitnode) ({
+      node$parent$n
+    }) else ({
+      node$n
+    })
     
     SetNodeStyle(
       node,
-      arrowhead = 'none',
       label = label,
-      tooltip = if (node$isLeaf) length(node$ids) else '',
+      tooltip = tooltip,
       style = 'filled,rounded',
       penwidth = 2
     )

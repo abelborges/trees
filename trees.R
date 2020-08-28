@@ -8,6 +8,7 @@ expected_entropy = source('expected_entropy.R')$value
 
 best_split = function(y, x, k, minsize = 30, minentropy = .1) {
   n = length(y)
+  k = length(unique(y))
   feats = names(x)
   
   if (n < minsize | entropy(table(y)/n, k) < minentropy)
@@ -26,16 +27,14 @@ best_split = function(y, x, k, minsize = 30, minentropy = .1) {
 }
 
 build = function(y, x, ids, parentval = NULL) {
-  k = length(unique(y))
-  split = best_split(y, x, k)
-  n = split$n
+  split = best_split(y, x)
   
   if (is.null(split$feature) | length(x) == 1) {
     if (is.null(parentval)) # nothing interesting
       NULL
     else # leaf
       list(
-        n = n,
+        n = split$n,
         parentval = parentval,
         ids = ids
       )
@@ -53,11 +52,11 @@ build = function(y, x, ids, parentval = NULL) {
     })
     
     list(
-      n = n,
+      n = split$n,
       parentval = if (is.null(parentval)) 'root' else parentval,
       feature = split$feature,
       cut = split$cut,
-      then = setNames(children, featvals)
+      split = setNames(children, featvals)
     )
   }
 }
