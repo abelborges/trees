@@ -1,3 +1,4 @@
+# TODO: use only binary splits, see ESLII section 9.2.4, page 310
 
 is_ordinal = function(x) {
   not_ordinal = is.character(x) | (is.factor(x) & !is.ordered(x))
