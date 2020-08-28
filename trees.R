@@ -57,12 +57,12 @@ build = function(y, x, ids, parentval = NULL) {
       parentval = if (is.null(parentval)) 'root' else parentval,
       feature = split$feature,
       cut = split$cut,
-      children = setNames(children, featvals)
+      then = setNames(children, featvals)
     )
   }
 }
 
-decision_tree = function(data, target) {
+function(data, target) {
   y = data[[target]]
   x = data[,setdiff(names(data), target)]
   build(y, x, ids = 1:length(y))
