@@ -5,10 +5,10 @@ is_ordinal = function(x) {
   !not_ordinal
 }
 
-expected_entropy_categoric = function(of, given, n, k) {
-  distribution = table(given)/n
+expected_entropy_categoric = function(of_y, given_x, n, k) {
+  distribution = table(given_x) / n
   cond_entropies = sapply(names(distribution), function(val) {
-    entropy(table(of[given == val])/n, k)
+    entropy(table(of_y[given_x == val])/n, k)
   })
   
   list(
@@ -17,15 +17,15 @@ expected_entropy_categoric = function(of, given, n, k) {
   )
 }
 
-expected_entropy_numeric = function(of, given, n, k) {
+expected_entropy_numeric = function(of_y, given_x, n, k) {
   ps = seq(.01, .99, by = .01)
-  qtype = if (is.factor(given)) 3 else 7 # see 'Types' in ?quantile
-  cuts = quantile(given, probs = ps, names = FALSE, type = qtype)
+  qtype = if (is.factor(given_x)) 3 else 7 # see 'Types' in ?quantile
+  cuts = quantile(given_x, probs = ps, names = FALSE, type = qtype)
   
   entropy_by_cut = sapply(seq_along(cuts), function(i) {
-    idxs = which(given > cuts[i])
-    e1 = entropy(table(of[ idxs ])/n, k = 2)
-    e2 = entropy(table(of[-idxs ])/n, k = 2)
+    idxs = which(given_x > cuts[i])
+    e1 = entropy(table(of_y[ idxs ])/n, k = 2)
+    e2 = entropy(table(of_y[-idxs ])/n, k = 2)
     p = 1 - ps[i] # approximately length(idxs)/n
     p*e1 + (1-p)*e2
   })
@@ -40,9 +40,9 @@ expected_entropy_numeric = function(of, given, n, k) {
   )
 }
 
-function(of, given, n, k) {
-  if (!is_ordinal(given))
-    expected_entropy_categoric(of, given, n, k)
+function(of_y, given_x, n, k) {
+  if (!is_ordinal(given_x))
+    expected_entropy_categoric(of_y, given_x, n, k)
   else
-    expected_entropy_numeric(of, given, n, k)
+    expected_entropy_numeric(of_y, given_x, n, k)
 }
