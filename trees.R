@@ -4,34 +4,33 @@ entropy = function(p, k = length(p)) {
   -sum(p * log(p, k))
 }
 
-best_split = function(y, x, minsize = 30, minentropy = .1) {
+expected_entropy = source('expected_entropy.R')$value
+
+best_split = function(y, x, k, minsize = 30, minentropy = .1) {
   n = length(y)
-  features = names(x)
-  k = length(unique(y))
-  prior = entropy(table(y)/n, k)
+  feats = names(x)
   
-  if (n < minsize | prior < minentropy)
+  if (n < minsize | entropy(table(y)/n, k) < minentropy)
     return(list(feature = NULL, n = n))
   
-  expected_entropy = function(given_feature) {
-    xx = x[[given_feature]]
-    distribution = table(xx) / n
-    cond_entropies = sapply(names(distribution), function(val) {
-      entropy(table(y[xx == val])/n, k)
-    })
-    sum(distribution * cond_entropies)
-  }
+  entropies = lapply(seq_along(feats), function(j) {
+    expected_entropy(of = y, given = x[[ feats[j] ]], n, k)
+  })
   
-  entropies = sapply(features, expected_entropy)
-  gains = prior - entropies
-  features[which.max(gains)]
+  best = which.min(sapply(entropies, function(e) e$entropy))
+  list(
+    feature = feats[best],
+    n = n,
+    cut = entropies[[best]]$cut
+  )
 }
 
 build = function(y, x, ids, parentval = NULL) {
-  n = length(y)
-  feature = best_split(y, x)
+  k = length(unique(y))
+  split = best_split(y, x, k)
+  n = split$n
   
-  if (is.null(feature) | length(x) == 1) {
+  if (is.null(split$feature) | length(x) == 1) {
     if (is.null(parentval)) # nothing interesting
       NULL
     else # leaf
@@ -41,8 +40,11 @@ build = function(y, x, ids, parentval = NULL) {
         ids = ids
       )
   } else { # split again
-    feat = x[[feature]]
-    cols = setdiff(names(x), feature)
+    cols = setdiff(names(x), split$feature)
+    
+    feat = x[[split$feature]]
+    if (!is.null(split$cut))
+      feat = feat > split$cut
     featvals = unique(feat)
     
     children = lapply(featvals, function(featval) {
@@ -53,7 +55,8 @@ build = function(y, x, ids, parentval = NULL) {
     list(
       n = n,
       parentval = if (is.null(parentval)) 'root' else parentval,
-      feature = feature,
+      feature = split$feature,
+      cut = split$cut,
       children = setNames(children, featvals)
     )
   }
@@ -64,18 +67,3 @@ decision_tree = function(data, target) {
   x = data[,setdiff(names(data), target)]
   build(y, x, ids = 1:length(y))
 }
-
-
-
-fake_it = function(n = 1000) {
-  data.frame(
-    x1 = sample(letters[1:2], n, T),
-    x2 = sample(letters[1:2], n, T),
-    x3 = sample(letters[1:2], n, T),
-    y = sample(c(F,T), n, T)
-  )
-}
-
-data = fake_it()
-tree = decision_tree(data, target = 'y')
-tree
