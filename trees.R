@@ -20,8 +20,8 @@ best_split = function(y, x, k, minsize = 30, minentropy = .1) {
   
   best = which.min(sapply(entropies, function(e) e$entropy))
   list(
-    feature = feats[best],
     n = n,
+    feature = feats[best],
     cut = entropies[[best]]$cut
   )
 }

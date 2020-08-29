@@ -7,8 +7,10 @@ function(tree, splitnode = 'split') {
   nodes$Do(function(node) {
     label = if (node$name == splitnode) ({
       p = node$parent
-      if (!is.null(p$cut)) paste(p$feature, '>', round(p$cut, 2))
-      else p$feature
+      if (!is.numeric(p$cut))
+        paste0(p$feature, ' in {', paste(p$cut, collapse = ','), '}')
+      else
+        paste(p$feature, '>', round(p$cut, 2))
     }) else as.character(node$parentval)
     
     tooltip = if (node$name == splitnode) ({
