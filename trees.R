@@ -42,8 +42,10 @@ build = function(y, x, ids, parentval = NULL) {
     cols = setdiff(names(x), split$feature)
     
     feat = x[[split$feature]]
-    if (!is.null(split$cut))
+    if (is.numeric(split$cut))
       feat = feat > split$cut
+    else
+      feat = feat %in% split$cut
     featvals = unique(feat)
     
     children = lapply(featvals, function(featval) {
