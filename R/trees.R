@@ -14,8 +14,8 @@ best_split = function(y, x, k, minsize = 30, minentropy = .1) {
   if (n < minsize | entropy(table(y)/n, k) < minentropy)
     return(list(feature = NULL, n = n))
   
-  entropies = lapply(seq_along(feats), function(j) {
-    expected_entropy(of = y, given = x[[ feats[j] ]], n, k)
+  entropies = lapply(feats, function(feat) {
+    expected_entropy(y, x[[feat]], n, k)
   })
   
   best = which.min(sapply(entropies, function(e) e$entropy))
